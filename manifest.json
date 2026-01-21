@@ -1,0 +1,36 @@
+
+{
+  "name": "Deutsch Daily",
+  "short_name": "Daily Polyglot",
+  "id": "com.deutsch.daily.pro",
+  "description": "Изучай языки по 3 слова в день.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/197/197571.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/197/197571.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Уроки",
+      "short_name": "Уроки",
+      "description": "Открыть сегодняшние слова",
+      "url": "./index.html",
+      "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/197/197571.png", "sizes": "512x512" }]
+    }
+  ]
+}
