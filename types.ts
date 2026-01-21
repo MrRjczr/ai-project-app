@@ -1,35 +1,33 @@
-
 export type TargetLanguage = 'de' | 'en' | 'es';
 export type LanguageLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1';
+export type Theme = 'light' | 'dark' | 'system';
 
 export interface WordEntry {
   id: string;
-  german: string; // This will hold the target word regardless of language for backward compatibility in state
+  german: string; 
   russian: string;
+  emoji: string; // Визуальная ассоциация
   article?: string;
   plural?: string;
-  exampleGerman: string; // Target language example
+  exampleGerman: string;
   exampleRussian: string;
   pronunciation: string;
   category: string;
+  language: TargetLanguage;
   dateLearned?: string; 
-  language?: TargetLanguage;
+  timesReviewed?: number; 
 }
 
-export interface DailyState {
-  date: string;
-  words: WordEntry[];
-  revealedCount: number;
+export interface UserSettings {
+  targetLanguage: TargetLanguage;
+  level: LanguageLevel;
+  theme: Theme;
 }
 
 export interface UserProgress {
   history: WordEntry[];
-  dailyState: DailyState | null;
   streak: number;
-  lastActiveDate: string | null;
-  totalWordsLearned: number;
-  settings: {
-    targetLanguage: TargetLanguage;
-    level: LanguageLevel;
-  };
+  score: number; 
+  lastLearnedDate: string | null;
+  settings: UserSettings;
 }

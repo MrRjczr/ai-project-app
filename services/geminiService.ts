@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { WordEntry, TargetLanguage, LanguageLevel } from "../types";
 
@@ -6,13 +5,13 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const languageNames = {
   'de': 'German',
-  'en': 'English',
+  'en': 'American English',
   'es': 'Spanish'
 };
 
 const voiceMap = {
   'de': 'Kore',
-  'en': 'Puck',
+  'en': 'Zephyr',
   'es': 'Charon'
 };
 
@@ -25,13 +24,14 @@ export async function fetchDailyWords(lang: TargetLanguage, level: LanguageLevel
       Target level: ${level}. 
       Focus on high-frequency words for this level.
       Provide:
-      1. The word in ${langName}.
+      1. The word in ${langName} (use American spellings and terms if English).
       2. Russian translation.
-      3. Grammar info: If German/Spanish, include definite article. If English, specify word type (noun, verb, etc).
-      4. Plural form (if applicable).
-      5. Pronunciation hint (transcription).
-      6. A simple example sentence in ${langName} and its Russian translation.
-      7. A short category (e.g., "Food", "Work", "Nature").`,
+      3. A single most relevant emoji for this word (even for abstract concepts like "freedom" or "think").
+      4. Grammar info: If German/Spanish, include definite article. If English, specify word type (noun, verb, etc).
+      5. Plural form (if applicable).
+      6. Pronunciation hint (IPA transcription).
+      7. A simple example sentence in ${langName} and its Russian translation.
+      8. A short category.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -40,24 +40,23 @@ export async function fetchDailyWords(lang: TargetLanguage, level: LanguageLevel
             type: Type.OBJECT,
             properties: {
               id: { type: Type.STRING },
-              german: { type: Type.STRING, description: `The word in ${langName}` },
+              german: { type: Type.STRING, description: `The word in target language` },
               russian: { type: Type.STRING },
-              article: { type: Type.STRING, description: "Definite article or word type" },
+              emoji: { type: Type.STRING, description: `A single emoji icon representing the word` },
+              article: { type: Type.STRING },
               plural: { type: Type.STRING },
-              exampleGerman: { type: Type.STRING, description: `Example in ${langName}` },
+              exampleGerman: { type: Type.STRING },
               exampleRussian: { type: Type.STRING },
               pronunciation: { type: Type.STRING },
               category: { type: Type.STRING }
             },
-            required: ["id", "german", "russian", "exampleGerman", "exampleRussian", "pronunciation", "category"]
+            required: ["id", "german", "russian", "emoji", "exampleGerman", "exampleRussian", "pronunciation", "category"]
           }
         }
       }
     });
 
-    const text = response.text;
-    if (!text) throw new Error("Empty response from AI");
-    const words = JSON.parse(text);
+    const words = JSON.parse(response.text || "[]");
     return words.map((w: any) => ({ ...w, language: lang }));
   } catch (error) {
     console.error("Failed to fetch words:", error);
@@ -65,12 +64,12 @@ export async function fetchDailyWords(lang: TargetLanguage, level: LanguageLevel
   }
 }
 
-export async function speakWord(text: string, lang: TargetLanguage = 'de'): Promise<void> {
+export async function speakWord(text: string, lang: TargetLanguage): Promise<void> {
   try {
-    const voice = voiceMap[lang] || 'Kore';
+    const voice = voiceMap[lang] || 'Zephyr';
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: `Say clearly in its native language: ${text}` }] }],
+      contents: [{ parts: [{ text: `Speak this ${languageNames[lang]} text clearly: ${text}` }] }],
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
@@ -84,9 +83,6 @@ export async function speakWord(text: string, lang: TargetLanguage = 'de'): Prom
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
     if (base64Audio) {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
       const audioBytes = decodeBase64(base64Audio);
       const audioBuffer = await decodeAudioData(audioBytes, audioContext, 24000, 1);
       const source = audioContext.createBufferSource();

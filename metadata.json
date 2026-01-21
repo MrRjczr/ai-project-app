@@ -1,5 +1,7 @@
 {
-  "name": "Copy of Deutsch Daily",
-  "description": "Learn 3 new German words every day with translations and examples, powered by Gemini AI.",
-  "requestFramePermissions": []
+  "name": "Daily Polyglot",
+  "description": "Изучай по 3 новых иностранных слова каждый день с помощью ИИ.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }
